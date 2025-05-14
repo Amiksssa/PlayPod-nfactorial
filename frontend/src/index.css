@@ -1,0 +1,704 @@
+/* PlayPod/frontend/src/index.css */
+
+/* --- Глобальный сброс и базовые стили --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Предотвращаем двойные скроллбары на body и html */
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #000000; /* Черный фон по умолчанию для всего приложения */
+  color: #FFFFFF;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+}
+
+/* --- Основная структура макета приложения (App.js) --- */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-main-content-area {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  overflow: hidden;
+  /* Если плеер имеет фиксированную высоту (например, 90px) и является частью .app-container: */
+  /* height: calc(100% - 90px); */
+}
+
+/* --- Стили для Sidebar.js --- */
+.sidebar-container {
+  width: 240px;
+  min-width: 240px;
+  background-color: #000000;
+  padding: 24px;
+  border-right: 1px solid #181818;
+  display: flex;
+  flex-direction: column;
+  color: #b3b3b3;
+  overflow-y: auto;
+}
+
+.sidebar-logo-link {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 30px;
+  padding-left: 0;
+}
+
+.sidebar-logo-icon svg {
+  width: 28px;
+  height: 28px;
+  color: #1DB954; /* Spotify green */
+}
+
+.sidebar-nav,
+.sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.sidebar-actions {
+  margin-bottom: 0;
+}
+
+.sidebar-nav-item,
+.sidebar-action-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 8px;
+  border-radius: 4px;
+  color: #b3b3b3;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  width: 100%;
+}
+
+.sidebar-nav-item:hover,
+.sidebar-action-item:hover {
+  color: #FFFFFF;
+  background-color: #1a1a1a;
+}
+
+.sidebar-nav-item.sidebar-nav-item-active,
+.sidebar-action-item.sidebar-nav-item-active {
+  background-color: #282828;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.sidebar-nav-icon {
+  flex-shrink: 0;
+}
+
+.sidebar-nav-item span,
+.sidebar-action-item span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-divider {
+  border: none;
+  height: 1px;
+  background-color: #282828;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.sidebar-playlists {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+}
+
+.sidebar-playlist-item {
+  padding: 8px 8px;
+  font-size: 0.875rem;
+  color: #b3b3b3;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.2s ease-in-out;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.sidebar-playlist-item:hover {
+  color: #FFFFFF;
+}
+
+/* --- Стили для MainView.js --- */
+.main-view-container {
+  flex-grow: 1;
+  background-color: #121212; /* Фон основной контентной области */
+  overflow-y: auto; /* Позволяет прокручивать контент внутри MainView */
+  display: flex;
+  flex-direction: column;
+  padding: 24px; /* Общий padding для основного контента */
+}
+
+/* --- Стили для HomePage.js --- */
+.home-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.home-page-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+}
+
+.home-page-main-icon {
+  margin-bottom: 12px;
+  color: #1DB954;
+  animation: home-icon-pulse 2.5s infinite ease-in-out;
+}
+
+@keyframes home-icon-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+.home-page-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+}
+
+.home-page-subtitle {
+  font-size: 1.1rem;
+  color: #b3b3b3;
+  margin-bottom: 20px;
+  max-width: 580px;
+  line-height: 1.5;
+}
+
+.genre-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .home-page-main-icon { margin-bottom: 16px; }
+  .home-page-title { font-size: 2.75rem; margin-bottom: 12px; }
+  .home-page-subtitle { font-size: 1.2rem; margin-bottom: 24px; }
+  .genre-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .genre-button { padding: 18px; font-size: 1.05rem; }
+}
+
+.genre-button {
+  border-radius: 12px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); color: white;
+  font-weight: 600; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  aspect-ratio: 1 / 1; padding: 14px; font-size: 0.95rem; cursor: pointer;
+  border: none; overflow: hidden;
+}
+.genre-button:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35); }
+.genre-button-icon { margin-bottom: 8px; }
+.genre-button-icon svg { width: 32px; height: 32px; }
+.genre-button-text { text-align: center; line-height: 1.25; }
+.genre-button-hiphop { background-color: #8B5CF6; }
+.genre-button-hiphop:hover { background-color: #7C3AED; }
+.genre-button-pop { background-color: #EC4899; }
+.genre-button-pop:hover { background-color: #DB2777; }
+.genre-button-rock { background-color: #DC2626; }
+.genre-button-rock:hover { background-color: #B91C1C; }
+.genre-button-rnb { background-color: #F97316; }
+.genre-button-rnb:hover { background-color: #EA580C; }
+
+/* --- Стили для GenrePage.js --- */
+.genre-page-container { box-sizing: border-box; width: 100%; }
+.genre-page-back-link {
+  display: inline-flex; align-items: center; color: #b3b3b3;
+  margin-bottom: 20px; transition: color 0.2s ease-in-out; font-size: 0.9rem; font-weight: 500;
+}
+.genre-page-back-link:hover { color: #FFFFFF; }
+.genre-page-back-link svg { margin-right: 8px; }
+.genre-page-title { font-size: 2rem; font-weight: 700; color: #FFFFFF; margin-bottom: 24px; }
+.genre-page-title-highlight { color: #1DB954; }
+.albums-grid-horizontal {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;
+}
+@media (min-width: 640px) {
+ .albums-grid-horizontal { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px; }
+}
+.genre-page-no-albums { color: #b3b3b3; font-size: 1.1rem; text-align: center; margin-top: 40px; }
+
+/* --- Стили для AlbumCard.js --- */
+.album-card-link {
+  background-color: #181818; border-radius: 8px; padding: 16px; display: flex;
+  flex-direction: column; transition: background-color 0.2s ease-in-out;
+  text-decoration: none; color: #FFFFFF; position: relative; overflow: hidden;
+}
+.album-card-link:hover { background-color: #282828; }
+.album-card-link:hover .album-card-play-button { opacity: 1; transform: translateY(0); }
+.album-card-image-wrapper { position: relative; margin-bottom: 16px; }
+.album-card-image {
+  width: 100%; aspect-ratio: 1 / 1; object-fit: cover;
+  border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.album-card-play-button {
+  position: absolute; bottom: 8px; right: 8px; background-color: #1DB954;
+  color: #FFFFFF; border-radius: 50%; width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3); opacity: 0;
+  transform: translateY(8px); transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+.album-card-play-button svg { width: 24px; height: 24px; fill: currentColor; }
+.album-card-info { display: flex; flex-direction: column; gap: 4px; }
+.album-card-title {
+  font-size: 1rem; font-weight: 700; color: #FFFFFF;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.album-card-details {
+  font-size: 0.8rem; color: #b3b3b3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.album-card-details .detail-label { font-weight: 500; color: #a0a0a0; }
+
+/* --- Стили для AlbumPage.js --- */
+.album-page-container { /* padding уже есть у .main-view-container */ }
+.album-page-back-link {
+  display: inline-flex; align-items: center; color: #b3b3b3;
+  margin-bottom: 24px; transition: color 0.2s ease-in-out; font-size: 0.9rem;
+}
+.album-page-back-link:hover { color: #FFFFFF; }
+.album-page-back-link svg { margin-right: 8px; width: 20px; height: 20px; }
+
+.album-page-header {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 24px; margin-bottom: 32px; text-align: center;
+}
+@media (min-width: 768px) {
+  .album-page-header { flex-direction: row; align-items: flex-end; text-align: left; }
+}
+.album-cover-image {
+  width: 192px; height: 192px; object-fit: cover;
+  border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+@media (min-width: 768px) { .album-cover-image { width: 224px; height: 224px; } }
+
+.album-info { display: flex; flex-direction: column; align-items: center; }
+@media (min-width: 768px) { .album-info { align-items: flex-start; } }
+
+.album-type-label {
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+  color: #b3b3b3; margin-bottom: 4px;
+}
+.album-title-main {
+  font-size: 2.5rem; font-weight: 900; color: #FFFFFF;
+  margin-bottom: 8px; line-height: 1.1;
+}
+@media (min-width: 768px) { .album-title-main { font-size: 3.5rem; } }
+.album-artist-main { font-size: 1rem; color: #b3b3b3; font-weight: 500; margin-bottom: 4px; }
+.album-year { font-size: 0.9rem; color: #a0a0a0; }
+.album-meta-main { font-size: 0.875rem; color: #b3b3b3; margin-top: 4px; }
+
+.album-actions-main { margin-top: 24px; display: flex; align-items: center; gap: 16px; }
+
+.album-play-button-white {
+  background-color: #1DB954; color: #FFFFFF; padding: 10px 24px;
+  border-radius: 500px; font-size: 0.875rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em; display: flex;
+  align-items: center; gap: 8px;
+  transition: transform 0.1s ease-out, background-color 0.2s ease;
+  border: 1px solid transparent;
+}
+.album-play-button-white:hover { transform: scale(1.03); background-color: #1aa34a; }
+.album-play-button-white svg { width: 18px; height: 18px; fill: #FFFFFF; }
+.album-play-button-white:disabled { background-color: #535353; color: #a7a7a7; cursor: not-allowed; }
+.album-play-button-white:disabled svg { fill: #a7a7a7; }
+
+/* --- РЕДИЗАЙН СПИСКА ТРЕКОВ (Spotify-like) --- */
+.album-tracks-list-section { margin-top: 40px; }
+
+.album-tracks-header-spotify {
+  display: grid;
+  grid-template-columns: [play-icon] 48px [main-info] 1fr [actions-duration] auto;
+  gap: 16px;
+  padding: 0 16px 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  color: #b3b3b3;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  align-items: center;
+}
+
+.track-header-spotify-title { grid-column: main-info; }
+.track-header-spotify-duration { grid-column: actions-duration; text-align: right; padding-right: 80px; /* Место для иконок действий */}
+
+.track-item-spotify {
+  display: grid;
+  grid-template-columns: [play-icon] 48px [main-info] 1fr [actions-duration] auto;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  min-height: 56px;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+.track-item-spotify:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+.track-item-spotify .track-item-spotify-play-icon-wrapper .track-play-icon {
+  display: none; /* Скрываем иконку Play по умолчанию */
+}
+.track-item-spotify:hover .track-item-spotify-play-icon-wrapper .track-play-icon {
+  display: inline-block; /* Показываем иконку Play при наведении на строку */
+}
+.track-item-spotify .track-item-spotify-actions-duration .track-action-button {
+  opacity: 0; /* Скрываем кнопки действий по умолчанию */
+  visibility: hidden;
+}
+.track-item-spotify:hover .track-item-spotify-actions-duration .track-action-button {
+  opacity: 1; /* Показываем кнопки действий при наведении на строку */
+  visibility: visible;
+}
+.track-item-spotify:hover .track-item-spotify-actions-duration .track-duration-spotify {
+  display: none; /* Скрываем длительность, чтобы показать кнопки */
+}
+
+.track-item-spotify-play-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.track-item-spotify-main-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.track-title-spotify {
+  color: #FFFFFF;
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.track-artist-spotify {
+  color: #b3b3b3;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-item-spotify-actions-duration {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: #b3b3b3;
+  gap: 16px;
+}
+.track-duration-spotify {
+  font-size: 0.875rem;
+  min-width: 40px;
+  text-align: right;
+  display: inline-block; /* Чтобы не скрывался при display: none у родителя */
+}
+.track-action-button {
+  color: #b3b3b3;
+  transition: color 0.2s ease;
+  background: none;
+  border: none;
+  padding: 4px;
+  display: flex; /* Для выравнивания иконки */
+  align-items: center;
+  justify-content: center;
+}
+.track-action-button:hover { color: #FFFFFF; }
+.track-action-button.track-favorite-button.active svg { color: #1DB954; fill: #1DB954; }
+/* --- Конец редизайна списка треков --- */
+
+/* --- Стили для Player.js (базовые) --- */
+.player-container {
+  height: 90px; 
+  min-height: 90px;
+  background-color: #181818; 
+  border-top: 1px solid #282828; 
+  padding: 0 20px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #b3b3b3; 
+  box-sizing: border-box;
+}
+/* ... (остальные стили для Player остаются) ... */
+.player-track-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-basis: 30%; 
+  min-width: 0; 
+}
+.player-track-info img {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+.player-track-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; 
+}
+.player-track-title {
+  font-size: 0.9rem;
+  color: #FFFFFF;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-track-artist {
+  font-size: 0.75rem;
+  color: #b3b3b3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-favorite-button { 
+    color: #b3b3b3;
+    margin-left: 8px; 
+}
+.player-favorite-button:hover {
+    color: #FFFFFF;
+}
+.player-favorite-button.active svg {
+    color: #1DB954; 
+    fill: #1DB954;
+}
+
+.player-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-basis: 40%; 
+}
+.player-buttons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.player-buttons button {
+  color: #b3b3b3;
+  transition: color 0.2s ease;
+}
+.player-buttons button:hover {
+  color: #FFFFFF;
+}
+.player-buttons button.active { 
+    color: #1DB954; 
+}
+.player-play-button {
+  background-color: #FFFFFF;
+  color: #000000 !important; 
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease;
+}
+.player-play-button:hover {
+  transform: scale(1.05);
+}
+.player-play-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+.player-progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 450px;
+}
+.player-progress-bar-container input[type="range"] {
+  flex-grow: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #404040; 
+  border-radius: 2px;
+  cursor: pointer;
+}
+.player-progress-bar-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #FFFFFF; 
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.player-progress-bar-container input[type="range"]:hover::-webkit-slider-thumb {
+  background: #1DB954; 
+}
+.player-progress-bar-container input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.player-progress-bar-container input[type="range"]:hover::-moz-range-thumb {
+  background: #1DB954;
+}
+
+.player-time {
+  font-size: 0.75rem;
+  min-width: 35px; 
+  text-align: center;
+}
+
+.player-volume-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-basis: 30%; 
+}
+.player-volume-controls button {
+  color: #b3b3b3;
+}
+.player-volume-controls button:hover {
+  color: #FFFFFF;
+}
+.player-volume-controls input[type="range"] {
+  width: 80px; 
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #404040;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.player-volume-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.player-volume-controls input[type="range"]:hover::-webkit-slider-thumb {
+  background: #1DB954;
+}
+.player-volume-controls input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+.player-volume-controls input[type="range"]:hover::-moz-range-thumb {
+  background: #1DB954;
+}
+
+/* Общие сообщения загрузки/ошибок */
+.loading-message, .error-message-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2rem;
+    color: #b3b3b3;
+}
+.loading-icon {
+    margin-left: 10px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.error-message-container p {
+    margin-bottom: 20px;
+    color: #f87171; /* Tailwind red-400 */
+}
+.back-to-home-link {
+    background-color: #1DB954; /* spotify-green */
+    color: #FFFFFF;
+    padding: 10px 20px;
+    border-radius: 500px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+.back-to-home-link:hover {
+    background-color: #1aa34a;
+}
+
