@@ -1,124 +1,157 @@
-import React, { useState, useEffect } from 'react'; // <<< ВАЖНО: Импорт React, useState, useEffect
-import { useParams, Link } from 'react-router-dom'; // <<< ВАЖНО: Импорт useParams и Link
-import { fetchAlbumById } from '../services/api';    // <<< ВАЖНО: Импорт вашей функции API
-import TrackItem from '../components/TrackItem';      // <<< ВАЖНО: Импорт TrackItem
-import { Play, Clock, ChevronLeft, Music2 } from 'lucide-react'; // Heart убран, он в TrackItem
+// frontend/src/pages/AlbumPage.js
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { fetchAlbumById } from '../services/api'; // Изменено: getAlbumById -> fetchAlbumById
+import TrackItem from '../components/TrackItem';
+// import './AlbumPage.css'; // Удалено
 
-const AlbumPage = ({ onPlayTrack, favorites, onToggleFavorite }) => {
-  const { albumId } = useParams(); // Теперь useParams определен
-  const [album, setAlbum] = useState(null); // Теперь useState определен
+const AlbumPage = ({ onPlayTrack, favorites: favoritesProp, onToggleFavorite }) => {
+  const { albumId } = useParams();
+  const [album, setAlbum] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => { // Теперь useEffect определен
-    // console.log("AlbumPage received 'favorites' prop:", favorites, "Type:", typeof favorites, "IsArray:", Array.isArray(favorites));
-    if (typeof favorites === 'undefined') {
-      console.error("ALBUM_PAGE_ERROR: 'favorites' prop is UNDEFINED. Check App.js prop passing.");
-    } else if (!Array.isArray(favorites)) {
-      console.warn("ALBUM_PAGE_WARNING: 'favorites' prop is defined but NOT an array. Value:", favorites);
-    }
-  }, [favorites]);
+  console.log('[AlbumPage Render Start] Received favoritesProp:', favoritesProp, 'Is favoritesProp an array?', Array.isArray(favoritesProp));
 
-  useEffect(() => { // Теперь useEffect определен
+  const favorites = Array.isArray(favoritesProp) ? favoritesProp : [];
+  console.log('[AlbumPage Render Start] Internal "favorites" (after ensuring array):', favorites, 'Is it an array?', Array.isArray(favorites));
+
+  useEffect(() => {
+    console.log("[AlbumPage useEffect for favoritesProp] favoritesProp:", favoritesProp, "Type:", typeof favoritesProp, "IsArray:", Array.isArray(favoritesProp));
+    if (typeof favoritesProp === 'undefined') {
+      console.error("ALBUM_PAGE_ERROR (useEffect): 'favoritesProp' is UNDEFINED. Check App.js prop passing.");
+    } else if (!Array.isArray(favoritesProp)) {
+      console.warn("ALBUM_PAGE_WARNING (useEffect): 'favoritesProp' is defined but NOT an array. Value:", favoritesProp);
+    }
+  }, [favoritesProp]);
+
+  useEffect(() => {
     const loadAlbum = async () => {
-      setLoading(true); setError(null);
       try {
-        const albumData = await fetchAlbumById(albumId); // Теперь fetchAlbumById определен
-        if (albumData && Array.isArray(albumData.tracks)) {
-          const tracksWithAlbumInfo = albumData.tracks.map(track => ({
-            ...track, artist: albumData.artist, album_title: albumData.title,
-            album_cover_url: albumData.cover_url, audio_url: track.audio_url || '#',
-            duration_ms: track.duration_ms || 220000
-          }));
+        setLoading(true);
+        setError(null);
+        console.log(`[AlbumPage] Fetching album with ID: ${albumId}`);
+        const albumData = await fetchAlbumById(albumId); // Изменено: getAlbumById -> fetchAlbumById
+
+        if (albumData && albumData.tracks) {
+          const tracksWithAlbumInfo = albumData.tracks
+            .filter(track => track && typeof track.id !== 'undefined')
+            .map(track => ({
+              ...track,
+              album: {
+                id: albumData.id,
+                name: albumData.name,
+                artist: albumData.artist,
+                cover_art_url: albumData.cover_art_url
+              },
+              artist_name: track.artist || albumData.artist,
+              album_name: albumData.name,
+              cover_art_url: track.cover_art_url || albumData.cover_art_url,
+              duration_ms: typeof track.duration_ms === 'number' ? track.duration_ms : 220000
+            }));
           setAlbum({ ...albumData, tracks: tracksWithAlbumInfo });
+          console.log('[AlbumPage] Album data loaded and processed:', { ...albumData, tracks: tracksWithAlbumInfo });
         } else {
-          setError(albumData ? 'В альбоме нет треков или данные некорректны.' : 'Альбом не найден.');
-          setAlbum(null);
+          console.error('[AlbumPage] Fetched album data is invalid or has no tracks:', albumData);
+          setError('Альбом не найден или не содержит треков.');
         }
       } catch (err) {
-        console.error(`Error loading album ${albumId}:`, err);
-        setError('Не удалось загрузить данные альбома.'); setAlbum(null);
-      } finally { setLoading(false); }
+        console.error('[AlbumPage] Error loading album:', err);
+        setError(err.message || 'Ошибка загрузки альбома.');
+      } finally {
+        setLoading(false);
+      }
     };
-    if (albumId) loadAlbum();
+
+    if (albumId) {
+      loadAlbum();
+    } else {
+      console.error('[AlbumPage] albumId is undefined.');
+      setError('Не указан ID альбома.');
+      setLoading(false);
+    }
   }, [albumId]);
 
   const handlePlayTrackFromList = (track) => {
-    if (onPlayTrack && album && Array.isArray(album.tracks)) {
-      onPlayTrack(track, album.tracks);
-    }
-  };
-  
-  const handlePlayAlbum = () => {
-    if (album && Array.isArray(album.tracks) && album.tracks.length > 0 && onPlayTrack) {
-      onPlayTrack(album.tracks[0], album.tracks);
+    if (onPlayTrack && track && album) {
+      onPlayTrack(track, track.cover_art_url || album.cover_art_url, album.primary_color || '#121212');
+    } else {
+      console.warn('[AlbumPage] Could not play track. Missing onPlayTrack, track, or album info.', { track, album });
     }
   };
 
-  if (loading) return <div className="loading-message">Загрузка альбома... <Music2 size={28} className="loading-icon"/></div>;
-  if (error) return <div className="error-message-container"><p>{error}</p><Link to="/" className="back-to-home-link">На главную</Link></div>; // Теперь Link определен
-  if (!album || !Array.isArray(album.tracks)) return <div className="album-no-tracks-message">Информация об альбоме не загружена.</div>;
+  if (loading) {
+    return <div className="album-loading-message">Загрузка данных альбома...</div>;
+  }
+  if (error) {
+    return <div className="album-error-message">Ошибка: {error}</div>;
+  }
+  if (!album) {
+    return <div className="album-no-data-message">Информация об альбоме не загружена.</div>;
+  }
+  if (!Array.isArray(album.tracks)) {
+    console.error('[AlbumPage] album.tracks is not an array after loading!', album.tracks);
+    return <div className="album-error-message">Ошибка: Треки альбома загружены некорректно.</div>;
+  }
 
-  // Гарантируем, что favorites является массивом ПЕРЕД использованием .includes
-  const currentFavoritesToUse = Array.isArray(favorites) ? favorites : [];
+  const currentFavoritesToUse = favorites;
+  console.log('[AlbumPage] Before rendering tracks, currentFavoritesToUse:', currentFavoritesToUse, 'Is it an array?', Array.isArray(currentFavoritesToUse));
 
   return (
     <div className="album-page-container">
-      <Link to={`/genre/${encodeURIComponent(album.genre || 'unknown')}`} className="album-page-back-link"> {/* Теперь Link определен */}
-        <ChevronLeft size={20} /> 
-        <span>Назад к жанру "{album.genre || 'Неизвестный жанр'}"</span>
-      </Link>
-      <header className="album-page-header">
-        <img src={album.cover_url} alt={album.title} className="album-cover-image" onError={(e) => e.target.src = 'https://placehold.co/200x200/282828/535353?text=No+Art'}/>
+      <div className="album-header">
+        <img src={album.cover_art_url || '/placeholder-album-art.png'} alt={album.name} className="album-cover-art-large" />
         <div className="album-info">
-          <p className="album-type-label">Альбом</p>
-          <h1 className="album-title-main" title={album.title}>{album.title}</h1>
-          <p className="album-artist-main">{album.artist} {album.year && <span className="album-year"> • {album.year}</span>}</p>
-          <p className="album-meta-main">{album.tracks.length} треков</p>
-          <div className="album-actions-main">
-            <button className="album-play-button-white" onClick={handlePlayAlbum} aria-label={`Play album ${album.title}`} disabled={album.tracks.length === 0}>
-              <Play size={20} fill="currentColor" /> <span>Слушать</span>
-            </button>
-          </div>
+          <h1>{album.name}</h1>
+          <p className="album-artist">{album.artist}</p>
+          <p className="album-meta">{album.release_year || 'N/A'} • {album.tracks.length} треков</p>
         </div>
-      </header>
-      <div className="album-tracks-list-section">
-        <div className="album-tracks-header-spotify">
-          <div className="track-header-spotify-play-icon"></div>
-          <div className="track-header-spotify-title">Название</div>
-          <div className="track-header-spotify-duration"><Clock size={16} /></div>
-        </div>
-        {album.tracks.length > 0 ? (
-          album.tracks.map((track) => {
-            // Используем currentFavoritesToUse, который гарантированно является массивом
-            const isFav = track && typeof track.id !== 'undefined' 
-                          ? currentFavoritesToUse.includes(track.id) 
-                          : false;
+      </div>
+
+      <div className="album-track-list">
+        {album.tracks.length === 0 ? (
+          <p>В этом альбоме нет треков.</p>
+        ) : (
+          album.tracks.map((track, index) => {
+            if (!track || typeof track.id === 'undefined') {
+              console.warn(`[AlbumPage Map Item - Index ${index}] Invalid track data or missing track.id. Skipping. Track:`, track);
+              return null;
+            }
+
+            console.log(`[AlbumPage Map Item - Index ${index}] Track ID:`, track.id, 'Value of currentFavoritesToUse before .includes():', currentFavoritesToUse);
+            
+            let isFav = false;
+            try {
+              if (!Array.isArray(currentFavoritesToUse)) {
+                console.error(`[AlbumPage Map Item - Index ${index}] CRITICAL! currentFavoritesToUse is NOT AN ARRAY right before .includes()! Value:`, currentFavoritesToUse);
+              } else {
+                isFav = currentFavoritesToUse.includes(track.id);
+              }
+            } catch (e) {
+              console.error(`[AlbumPage Map Item - Index ${index}] Error during .includes() call! Track ID: ${track.id}, currentFavoritesToUse:`, currentFavoritesToUse, "Error:", e);
+            }
             
             return (
-              <TrackItem 
-                key={track.id} 
+              <TrackItem
+                key={track.id}
+                trackNumber={index + 1}
                 track={track}
                 onPlay={() => handlePlayTrackFromList(track)}
-                isFavorite={isFav} 
+                isFavorite={isFav}
                 onToggleFavorite={() => {
-                  if (onToggleFavorite && typeof onToggleFavorite === 'function') {
-                    if (track && typeof track.id !== 'undefined') {
-                        onToggleFavorite(track.id);
-                    } else {
-                        console.error("TrackItem: Cannot toggle favorite, track.id is undefined for track:", track);
-                    }
+                  if (onToggleFavorite) {
+                    onToggleFavorite(track.id);
                   } else {
-                    console.error("AlbumPage/TrackItem: onToggleFavorite prop is not a function or not provided.");
+                    console.warn("[AlbumPage] onToggleFavorite is not defined for TrackItem");
                   }
                 }}
               />
             );
           })
-        ) : (<p className="album-no-tracks-message">В этом альбоме пока нет треков.</p>)}
+        )}
       </div>
     </div>
   );
 };
 
-export default AlbumPage; // <<< ВАЖНО: Экспорт по умолчанию
+export default AlbumPage;
