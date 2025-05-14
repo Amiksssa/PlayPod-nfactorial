@@ -1,4 +1,3 @@
-// PlayPod/frontend/src/App.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
@@ -18,19 +17,18 @@ function App() {
 
   const [favorites, setFavorites] = useState(() => {
     // console.log("App.js: Initializing 'favorites' state...");
-    let savedFavoritesValue = null;
-    try {
-      savedFavoritesValue = localStorage.getItem('playpod_favorites');
-      if (savedFavoritesValue) {
-        const parsedFavorites = JSON.parse(savedFavoritesValue);
+    const savedFavorites = localStorage.getItem('playpod_favorites');
+    if (savedFavorites) {
+      try {
+        const parsedFavorites = JSON.parse(savedFavorites);
         if (Array.isArray(parsedFavorites)) {
           // console.log("App.js: Loaded 'favorites' from localStorage:", parsedFavorites);
           return parsedFavorites;
         }
         // console.warn("App.js: 'favorites' from localStorage is not an array, defaulting to []. Value:", parsedFavorites);
+      } catch (e) {
+        console.error("App.js: Failed to parse 'favorites' from localStorage, defaulting to []. Error:", e);
       }
-    } catch (e) {
-      console.error("App.js: Failed to parse 'favorites' from localStorage, defaulting to []. Error:", e);
     }
     // console.log("App.js: No valid 'favorites' in localStorage or parse error, defaulting to [].");
     return []; // Гарантированно возвращаем массив
@@ -52,20 +50,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // console.log("App.js: 'favorites' state changed. Current favorites:", favorites, "IsArray:", Array.isArray(favorites));
-    if (Array.isArray(favorites)) {
+    // console.log("App.js: 'favorites' state changed. Attempting to save. Current favorites:", favorites, "IsArray:", Array.isArray(favorites));
+    if (Array.isArray(favorites)) { 
       localStorage.setItem('playpod_favorites', JSON.stringify(favorites));
     } else {
-      // Эта ситуация не должна возникать, если setFavorites всегда получает массив.
-      // Но на всякий случай, если favorites каким-то образом стал не массивом, логируем и сбрасываем.
-      console.error("App.js: CRITICAL - 'favorites' state is NOT an array during save! Value:", favorites, "Forcing to empty array.");
-      setFavorites([]); // Принудительный сброс в пустой массив
+      console.error("App.js: CRITICAL - 'favorites' state became NON-ARRAY during an update! Value:", favorites, "Forcing to empty array.");
+      setFavorites([]); 
     }
   }, [favorites]);
 
   const toggleFavorite = useCallback((trackId) => {
     setFavorites(prevFavorites => {
-      // Гарантируем, что prevFavorites это массив перед использованием .includes
       const currentFavorites = Array.isArray(prevFavorites) ? prevFavorites : [];
       if (currentFavorites.includes(trackId)) {
         return currentFavorites.filter(id => id !== trackId);
@@ -155,15 +150,13 @@ function App() {
       }
   }, [currentTrack]);
 
-  // console.log("App.js rendering Routes. Passing 'favorites' prop with value:", favorites, "Is it an array?", Array.isArray(favorites));
-
   return (
-    <div className="app-container">
-      <div className="app-main-content-area">
+    <div className="app-container"> {/* ОБЩИЙ КОНТЕЙНЕР ПРИЛОЖЕНИЯ */}
+      <div className="app-main-content-area"> {/* КОНТЕЙНЕР ДЛЯ САЙДБАРА И ОСНОВНОГО КОНТЕНТА */}
         <Sidebar />
         <MainView>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} /> {/* HomePage не нужны эти пропсы */}
             <Route 
               path="/album/:albumId" 
               element={
@@ -174,7 +167,7 @@ function App() {
                 />
               } 
             />
-            <Route path="/genre/:genreName" element={<GenrePage />} />
+            <Route path="/genre/:genreName" element={<GenrePage />} /> {/* GenrePage не нужны эти пропсы */}
             <Route 
               path="/favorites" 
               element={
@@ -193,11 +186,13 @@ function App() {
         <Player
           track={currentTrack}
           isPlaying={isPlaying}
-          onTogglePlayPause={handleTogglePlayPause}
+          onTogglePlayPause={handleTogglePlayPause} // Правильное имя пропа
           onNextTrack={playNextTrack}
           onPrevTrack={playPrevTrack}
           favorites={favorites} 
           onToggleFavorite={toggleFavorite}
+          // audioRef и onEnded не передаются, т.к. Player управляет своим audioRef
+          // onFullScreen не реализован в этой версии Player
         />
       )}
     </div>
