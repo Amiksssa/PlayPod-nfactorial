@@ -9,7 +9,7 @@ ALBUMS_DATA = [
         "title": "My Beautiful Dark Twisted Fantasy",
         "artist": "Kanye West",
         "genre": "Хип-хоп",
-        "cover_url": "https://placehold.co/300x300/2c2c2c/ffffff?text=MBDTF",
+        "cover_url": "covers/kanyewest.webp", # Путь уже верный, соответствует скриншоту
         "tracks": [
             {"id": "track_001_01", "track_number": 1, "title": "Dark Fantasy", "audio_url": "#", "features": None},
             {"id": "track_001_02", "track_number": 2, "title": "Gorgeous", "audio_url": "#", "features": "Kid Cudi & Raekwon"},
@@ -32,7 +32,7 @@ ALBUMS_DATA = [
         "title": "Take Care",
         "artist": "Drake",
         "genre": "Хип-хоп",
-        "cover_url": "https://placehold.co/300x300/3a3a3a/ffffff?text=Take+Care",
+        "cover_url": "covers/Drake.jpg", # Путь уже верный, соответствует скриншоту
         "tracks": [
             {"id": "track_002_01", "track_number": 1, "title": "Over My Dead Body", "audio_url": "#", "features": "Chantal Kreviazuk"},
             {"id": "track_002_02", "track_number": 2, "title": "Shot for Me", "audio_url": "#", "features": None},
@@ -45,7 +45,7 @@ ALBUMS_DATA = [
             {"id": "track_002_09", "track_number": 9, "title": "We'll Be Fine", "audio_url": "#", "features": "Birdman"},
             {"id": "track_002_10", "track_number": 10, "title": "Make Me Proud", "audio_url": "#", "features": "Nicki Minaj"},
             {"id": "track_002_11", "track_number": 11, "title": "Lord Knows", "audio_url": "#", "features": "Rick Ross"},
-            {"id": "track_002_12", "track_number": 12, "title": "Cameras", "audio_url": "#", "features": None}, # Может быть Cameras / Good Ones Go Interlude
+            {"id": "track_002_12", "track_number": 12, "title": "Cameras", "audio_url": "#", "features": None},
             {"id": "track_002_13", "track_number": 13, "title": "Good Ones Go (Interlude)", "audio_url": "#", "features": None},
             {"id": "track_002_14", "track_number": 14, "title": "Doing It Wrong", "audio_url": "#", "features": "Stevie Wonder"},
             {"id": "track_002_15", "track_number": 15, "title": "The Real Her", "audio_url": "#", "features": "André 3000 & Lil Wayne"},
@@ -53,9 +53,8 @@ ALBUMS_DATA = [
             {"id": "track_002_17", "track_number": 17, "title": "HYFR (Hell Ya Fucking Right)", "audio_url": "#", "features": "Lil Wayne"},
             {"id": "track_002_18", "track_number": 18, "title": "Practice", "audio_url": "#", "features": None},
             {"id": "track_002_19", "track_number": 19, "title": "The Ride", "audio_url": "#", "features": "The Weeknd"},
-            {"id": "track_002_20", "track_number": 20, "title": "The Motto", "audio_url": "#", "features": "Lil Wayne"}, # Бонус?
-            {"id": "track_002_21", "track_number": 21, "title": "Hate Sleeping Alone", "audio_url": "#", "features": None}, # Бонус?
-            # {"id": "track_002_22", "track_number": 22, "title": "The Motto (Remix)", "audio_url": "#", "features": "Lil Wayne & Tyga"}, # Не указан в списке как часть основного альбома
+            {"id": "track_002_20", "track_number": 20, "title": "The Motto", "audio_url": "#", "features": "Lil Wayne"},
+            {"id": "track_002_21", "track_number": 21, "title": "Hate Sleeping Alone", "audio_url": "#", "features": None},
         ]
     },
     {
@@ -63,7 +62,7 @@ ALBUMS_DATA = [
         "title": "1989",
         "artist": "Taylor Swift",
         "genre": "Поп",
-        "cover_url": "https://placehold.co/300x300/b0c4de/ffffff?text=1989",
+        "cover_url": "covers/taylorswift.png", # ИЗМЕНЕНО - соответствует файлу taylorswift.png на скриншоте
         "tracks": [
             {"id": "track_003_01", "track_number": 1, "title": "Welcome to New York", "audio_url": "#", "features": None},
             {"id": "track_003_02", "track_number": 2, "title": "Blank Space", "audio_url": "#", "features": None},
@@ -85,7 +84,7 @@ ALBUMS_DATA = [
         "title": "Thank U, Next",
         "artist": "Ariana Grande",
         "genre": "Поп",
-        "cover_url": "https://placehold.co/300x300/ffc0cb/333333?text=Thank+U,+Next",
+        "cover_url": "covers/arianagrande.jpg", # ИЗМЕНЕНО - соответствует файлу arianagrande.jpg на скриншоте
         "tracks": [
             {"id": "track_004_01", "track_number": 1, "title": "imagine", "audio_url": "#", "features": None},
             {"id": "track_004_02", "track_number": 2, "title": "needy", "audio_url": "#", "features": None},
@@ -99,7 +98,6 @@ ALBUMS_DATA = [
             {"id": "track_004_10", "track_number": 10, "title": "7 rings", "audio_url": "#", "features": None},
             {"id": "track_004_11", "track_number": 11, "title": "thank u, next", "audio_url": "#", "features": None},
             {"id": "track_004_12", "track_number": 12, "title": "break up with your girlfriend, i’m bored", "audio_url": "#", "features": None},
-            # Пропускаем ремиксы и отдельные синглы, если они не часть основного альбома по списку
         ]
     },
     {
@@ -107,7 +105,7 @@ ALBUMS_DATA = [
         "title": "Wasting Light",
         "artist": "Foo Fighters",
         "genre": "Рок",
-        "cover_url": "https://placehold.co/300x300/808080/ffffff?text=Wasting+Light",
+        "cover_url": "covers/wastinglight.jpeg", # ИЗМЕНЕНО - соответствует файлу wastinglight.jpeg на скриншоте
         "tracks": [
             {"id": "track_005_01", "track_number": 1, "title": "Bridge Burning", "audio_url": "#", "features": None},
             {"id": "track_005_02", "track_number": 2, "title": "Rope", "audio_url": "#", "features": None},
@@ -120,8 +118,6 @@ ALBUMS_DATA = [
             {"id": "track_005_09", "track_number": 9, "title": "Miss the Misery", "audio_url": "#", "features": None},
             {"id": "track_005_10", "track_number": 10, "title": "I Should Have Known", "audio_url": "#", "features": "Krist Novoselic"},
             {"id": "track_005_11", "track_number": 11, "title": "Walk", "audio_url": "#", "features": None},
-            # {"id": "track_005_12", "track_number": 12, "title": "Better Off", "audio_url": "#", "features": None}, # Не указан в списке
-            # {"id": "track_005_13", "track_number": 13, "title": "Rope (deadmau5 Remix)", "audio_url": "#", "features": None}, # Ремикс
         ]
     },
     {
@@ -129,7 +125,7 @@ ALBUMS_DATA = [
         "title": "American Idiot",
         "artist": "Green Day",
         "genre": "Рок",
-        "cover_url": "https://placehold.co/300x300/006400/ffffff?text=American+Idiot",
+        "cover_url": "covers/americanidiot.jpg", # ИЗМЕНЕНО - соответствует файлу americanidiot.jpg на скриншоте
         "tracks": [
             {"id": "track_006_01", "track_number": 1, "title": "American Idiot", "audio_url": "#", "features": None},
             {"id": "track_006_02", "track_number": 2, "title": "Jesus of Suburbia", "audio_url": "#", "features": None},
@@ -151,11 +147,11 @@ ALBUMS_DATA = [
         "title": "Confessions",
         "artist": "Usher",
         "genre": "R&B",
-        "cover_url": "https://placehold.co/300x300/ffa500/333333?text=Confessions",
+        "cover_url": "covers/usher.png", # ИЗМЕНЕНО - соответствует файлу usher.png на скриншоте
         "tracks": [
             {"id": "track_007_01", "track_number": 1, "title": "Intro", "audio_url": "#", "features": None},
             {"id": "track_007_02", "track_number": 2, "title": "Yeah!", "audio_url": "#", "features": "Lil Jon & Ludacris"},
-            {"id": "track_007_03", "track_number": 3, "title": "Throwback", "audio_url": "#", "features": None}, # Может быть (Ft. Jadakiss)
+            {"id": "track_007_03", "track_number": 3, "title": "Throwback", "audio_url": "#", "features": None},
             {"id": "track_007_04", "track_number": 4, "title": "Confessions (Interlude)", "audio_url": "#", "features": None},
             {"id": "track_007_05", "track_number": 5, "title": "Confessions Part II", "audio_url": "#", "features": None},
             {"id": "track_007_06", "track_number": 6, "title": "Burn", "audio_url": "#", "features": None},
@@ -170,33 +166,31 @@ ALBUMS_DATA = [
             {"id": "track_007_15", "track_number": 15, "title": "Do It to Me", "audio_url": "#", "features": None},
             {"id": "track_007_16", "track_number": 16, "title": "Take Your Hand", "audio_url": "#", "features": None},
             {"id": "track_007_17", "track_number": 17, "title": "Follow Me", "audio_url": "#", "features": None},
-            # {"id": "track_007_18", "track_number": 18, "title": "Whatever I Want", "audio_url": "#", "features": None}, # Не указан в списке
-            # {"id": "track_007_19", "track_number": 19, "title": "Confessions Part I", "audio_url": "#", "features": None}, # Не указан в списке
         ]
     },
     {
         "id": "album_008",
-        "title": "Blonde", # В списке "Blonded", но альбом называется "Blonde"
-        "artist": "Frank Ocean", # В списке "Frank ocean"
+        "title": "Blonde",
+        "artist": "Frank Ocean",
         "genre": "R&B",
-        "cover_url": "https://placehold.co/300x300/f5f5dc/333333?text=Blonde",
+        "cover_url": "covers/frankocean.jpg", # ИЗМЕНЕНО - соответствует файлу frankocean.jpg на скриншоте
         "tracks": [
             {"id": "track_008_01", "track_number": 1, "title": "Nikes", "audio_url": "#", "features": None},
             {"id": "track_008_02", "track_number": 2, "title": "Ivy", "audio_url": "#", "features": None},
-            {"id": "track_008_03", "track_number": 3, "title": "Pink + White", "audio_url": "#", "features": None}, # (Ft. Beyoncé)
+            {"id": "track_008_03", "track_number": 3, "title": "Pink + White", "audio_url": "#", "features": None},
             {"id": "track_008_04", "track_number": 4, "title": "Be Yourself", "audio_url": "#", "features": None},
             {"id": "track_008_05", "track_number": 5, "title": "Solo", "audio_url": "#", "features": None},
-            {"id": "track_008_06", "track_number": 6, "title": "Skyline To", "audio_url": "#", "features": None}, # (Ft. Kendrick Lamar)
-            {"id": "track_008_07", "track_number": 7, "title": "Self Control", "audio_url": "#", "features": None}, # (Ft. Austin Feinstein & Yung Lean)
+            {"id": "track_008_06", "track_number": 6, "title": "Skyline To", "audio_url": "#", "features": None},
+            {"id": "track_008_07", "track_number": 7, "title": "Self Control", "audio_url": "#", "features": None},
             {"id": "track_008_08", "track_number": 8, "title": "Good Guy", "audio_url": "#", "features": None},
             {"id": "track_008_09", "track_number": 9, "title": "Nights", "audio_url": "#", "features": None},
             {"id": "track_008_10", "track_number": 10, "title": "Solo (Reprise)", "audio_url": "#", "features": "André 3000"},
             {"id": "track_008_11", "track_number": 11, "title": "Pretty Sweet", "audio_url": "#", "features": None},
             {"id": "track_008_12", "track_number": 12, "title": "Facebook Story", "audio_url": "#", "features": "SebastiAn"},
             {"id": "track_008_13", "track_number": 13, "title": "Close to You", "audio_url": "#", "features": None},
-            {"id": "track_008_14", "track_number": 14, "title": "White Ferrari", "audio_url": "#", "features": None}, # (Ft. James Blake & Bon Iver)
+            {"id": "track_008_14", "track_number": 14, "title": "White Ferrari", "audio_url": "#", "features": None},
             {"id": "track_008_15", "track_number": 15, "title": "Seigfried", "audio_url": "#", "features": None},
-            {"id": "track_008_16", "track_number": 16, "title": "Godspeed", "audio_url": "#", "features": None}, # (Ft. Kim Burrell & Yung Lean)
+            {"id": "track_008_16", "track_number": 16, "title": "Godspeed", "audio_url": "#", "features": None},
             {"id": "track_008_17", "track_number": 17, "title": "Futura Free", "audio_url": "#", "features": None},
         ]
     }
@@ -216,4 +210,3 @@ for album in ALBUMS_DATA:
         })
 
 GENRES = sorted(list(set(album["genre"] for album in ALBUMS_DATA)))
-
