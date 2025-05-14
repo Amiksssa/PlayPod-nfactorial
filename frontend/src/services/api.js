@@ -1,47 +1,86 @@
-import axios from 'axios';
+// frontend/src/services/api.js
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000/api';
+const API_BASE_URL = 'http://localhost:5000/api'; // Убедись, что порт совпадает с твоим Flask-сервером
 
-export const fetchAlbums = async (genre) => {
+export const fetchAlbums = async () => {
   try {
-    const params = genre ? { genre } : {};
-    const response = await axios.get(`${API_BASE_URL}/albums`, { params });
-    return Array.isArray(response.data) ? response.data : [];
+    const response = await fetch(`${API_BASE_URL}/albums`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+    }
+    return await response.json();
   } catch (error) {
-    console.error("Error fetching albums:", error);
-    return [];
+    console.error("Could not fetch albums:", error);
+    return []; // Возвращаем пустой массив в случае ошибки
   }
 };
 
 export const fetchAlbumById = async (albumId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/albums/${albumId}`);
-    return response.data; 
+    const response = await fetch(`${API_BASE_URL}/albums/${albumId}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.warn(`Album with ID ${albumId} not found.`);
+        return null; // Альбом не найден
+      }
+      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+    }
+    return await response.json();
   } catch (error) {
-    console.error(`Error fetching album ${albumId}:`, error);
-    return null;
+    console.error(`Could not fetch album ${albumId}:`, error);
+    throw error; // Перебрасываем ошибку для обработки в компоненте
   }
 };
 
 export const fetchGenres = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/genres`);
-    return Array.isArray(response.data) ? response.data : [];
+    const response = await fetch(`${API_BASE_URL}/genres`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+    }
+    return await response.json();
   } catch (error) {
-    console.error("Error fetching genres:", error);
+    console.error("Could not fetch genres:", error);
     return [];
   }
 };
 
-export const fetchTracks = async ({ albumId, genre } = {}) => {
-    try {
-      const params = {};
-      if (albumId) params.album_id = albumId;
-      if (genre) params.genre = genre;
-      const response = await axios.get(`${API_BASE_URL}/tracks`, { params });
-      return Array.isArray(response.data) ? response.data : [];
-    } catch (error) {
-      console.error("Error fetching tracks:", error);
-      return [];
+export const fetchTracksByGenre = async (genreName) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/tracks?genre=${encodeURIComponent(genreName)}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
     }
-  };
+    return await response.json();
+  } catch (error) {
+    console.error(`Could not fetch tracks for genre ${genreName}:`, error);
+    return [];
+  }
+};
+
+export const fetchAllTracksFromApi = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/tracks`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+    }
+    const tracks = await response.json();
+    // Нормализация данных, чтобы убедиться в наличии всех полей
+    return tracks.map(track => ({
+      id: track.id,
+      title: track.title || "Без названия",
+      artist: track.artist || "Неизвестный исполнитель",
+      album_id: track.album_id,
+      album_title: track.album_title || "Неизвестный альбом",
+      album_cover_url: track.album_cover_url || track.cover_url || '/covers/default_cover.png',
+      audio_url: track.audio_url || '#', // Если URL нет, ставим заглушку
+      duration_ms: typeof track.duration_ms === 'number' ? track.duration_ms : 200000, // Длительность по умолчанию
+      genre: track.genre,
+      track_number: track.track_number,
+      features: track.features,
+    }));
+  } catch (error) {
+    console.error("Could not fetch all tracks:", error);
+    return [];
+  }
+};
