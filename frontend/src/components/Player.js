@@ -1,241 +1,234 @@
-// PlayPod/frontend/src/components/Player.js
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-// Импортируем только нужные иконки из lucide-react
+// frontend/src/components/Player.js
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  SkipBack,
-  Play,
-  Pause,
-  SkipForward,
-  Volume2,
-  VolumeX,
-  Repeat,
-  Shuffle,
-  ListMusic, // Если вы используете кнопку "Очередь"
-  Heart,    // Если вы используете кнопку "Избранное" в плеере
-  Maximize2 // Если вы используете кнопку "Развернуть"
+  SkipBack, Play, Pause, SkipForward, Volume2, VolumeX, Volume1,
+  Repeat, Heart as HeartIcon
 } from 'lucide-react';
 
-// Принимаем пропсы из App.js
 const Player = ({
   track,
   isPlaying,
-  onTogglePlayPause, // Функция для управления play/pause из App.js
+  onTogglePlayPause,
   onNextTrack,
   onPrevTrack,
-  favorites,         // Список ID избранных треков
-  onToggleFavorite   // Функция для добавления/удаления из избранного
-  // onToggleFullScreenPlayer, // Если вы реализуете полноэкранный плеер
+  favorites,
+  onToggleFavorite,
 }) => {
-  const [progress, setProgress] = useState(0);
-  const [volume, setVolume] = useState(0.75);
-  const [isMuted, setIsMuted] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [isRepeat, setIsRepeat] = useState(false);
-  const [isShuffle, setIsShuffle] = useState(false); // Логика для shuffle должна быть в App.js
-
   const audioRef = useRef(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  
+  const [volume, setVolume] = useState(() => {
+    try { return parseFloat(localStorage.getItem('playpod_volume')) || 0.75; }
+    catch (e) { return 0.75; }
+  });
+  const [isMuted, setIsMuted] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('playpod_isMuted')) || false; }
+    catch (e) { return false; }
+  });
+  const [isRepeat, setIsRepeat] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('playpod_isRepeat')) || false; }
+    catch (e) { return false; }
+  });
 
-  // Эффект для управления play/pause на основе isPlaying из App.js
+  // Эффект для управления воспроизведением и загрузкой трека
   useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying && track && track.audio_url && track.audio_url !== '#') {
-        audioRef.current.play().catch(e => console.error("Error playing audio in Player.js:", e));
-      } else {
-        audioRef.current.pause();
+    const audio = audioRef.current;
+    if (!audio || !track) return;
+
+    if (track.audio_url && track.audio_url !== '#') {
+      if (audio.src !== track.audio_url) {
+        audio.src = track.audio_url;
+        audio.load(); // Важно для смены трека
+        setCurrentTime(0); // Сбрасываем время при смене трека
       }
-    }
-  }, [isPlaying, track]);
-
-  // Загрузка нового трека
-  useEffect(() => {
-    if (audioRef.current && track && track.audio_url) {
-      if (audioRef.current.src !== track.audio_url) {
-        audioRef.current.src = track.audio_url;
-        audioRef.current.load(); // Загружаем новый трек
-        // Воспроизведение начнется благодаря эффекту выше, если isPlaying true
+      
+      const playPromise = isPlaying ? audio.play() : audio.pause();
+      if (playPromise !== undefined && isPlaying) {
+        playPromise.catch(error => {
+          console.warn("Player: Audio play was interrupted or failed.", error);
+          // Если автоплей не сработал, можно обновить состояние isPlaying
+          if (onTogglePlayPause) onTogglePlayPause(false); 
+        });
       }
-    } else if (audioRef.current) {
-        // Если трека нет или URL некорректный, останавливаем и сбрасываем
-        audioRef.current.pause();
-        audioRef.current.src = ""; 
-        setCurrentTime(0);
-        setDuration(0);
-        setProgress(0);
-        if (onTogglePlayPause) onTogglePlayPause(false); // Убедимся, что isPlaying тоже false
+    } else {
+      audio.pause();
+      audio.src = ""; // Сбрасываем src, если трека нет или URL невалидный
+      setCurrentTime(0);
+      setDuration(0);
     }
-  }, [track, onTogglePlayPause]);
+  }, [track, isPlaying, onTogglePlayPause]);
 
-
-  // Управление громкостью и Mute
+  // Эффект для управления громкостью
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
+      try {
+        localStorage.setItem('playpod_volume', volume.toString());
+        localStorage.setItem('playpod_isMuted', JSON.stringify(isMuted));
+      } catch (e) { console.error("Error saving volume settings to localStorage:", e); }
     }
   }, [volume, isMuted]);
 
-  // Слушатели событий аудио элемента
+  // Эффект для сохранения режима повтора
+  useEffect(() => {
+    try {
+      localStorage.setItem('playpod_isRepeat', JSON.stringify(isRepeat));
+    } catch (e) { console.error("Error saving repeat settings to localStorage:", e); }
+  }, [isRepeat]);
+
+  // Эффект для подписки на события аудио элемента
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     const handleLoadedMetadata = () => setDuration(audio.duration);
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    
     const handleEnded = () => {
-      if (isRepeat) {
+      if (isRepeat && track && track.audio_url && track.audio_url !== '#') {
         audio.currentTime = 0;
-        if (onTogglePlayPause) onTogglePlayPause(true); // Запускаем снова
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => console.warn("Player: Error re-playing on repeat", e));
+        }
+        if(onTogglePlayPause && !isPlaying) onTogglePlayPause(true); // Убедимся, что isPlaying=true
       } else if (onNextTrack) {
-        onNextTrack(); // onNextTrack должен также установить isPlaying в true в App.js
-      } else {
-        // Если нет следующего трека и не включен повтор, останавливаем
-        if (onTogglePlayPause) onTogglePlayPause(false);
+        onNextTrack(); 
+      } else { // Если нет следующего и не повтор
+        if (onTogglePlayPause) onTogglePlayPause(false); 
+      }
+    };
+    
+    const handleCanPlay = () => {
+      // Этот обработчик может быть полезен для автостарта после загрузки,
+      // но основная логика play/pause уже в первом useEffect
+      if (isPlaying && track && track.audio_url && track.audio_url !== '#') {
+        // audio.play().catch(...); // Уже обрабатывается
       }
     };
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
-    // Слушатели для play/pause не нужны здесь, так как isPlaying управляется извне
+    audio.addEventListener('canplay', handleCanPlay);
 
     return () => {
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('canplay', handleCanPlay);
     };
-  }, [onNextTrack, isRepeat, onTogglePlayPause]); // Добавлен onTogglePlayPause в зависимости
+  }, [onNextTrack, isRepeat, onTogglePlayPause, isPlaying, track]); // Добавили isPlaying и track
 
-  // Обновление ползунка прогресса
-  useEffect(() => {
-    if (duration > 0 && isFinite(duration)) { // Проверка на isFinite для избежания NaN
-      setProgress((currentTime / duration) * 100);
-    } else {
-      setProgress(0);
-    }
-  }, [currentTime, duration]);
-
-  const handleInternalTogglePlayPause = () => {
-    if (!track || !track.audio_url || track.audio_url === '#') return;
-    if (onTogglePlayPause) {
-      onTogglePlayPause(); // Вызываем функцию из App.js для изменения глобального isPlaying
-    }
+  const handlePlayPauseClick = () => {
+    if (onTogglePlayPause) onTogglePlayPause();
   };
 
   const handleProgressChange = (e) => {
-    const newProgressValue = parseFloat(e.target.value);
-    if (audioRef.current && duration > 0 && isFinite(duration)) {
-      const newTime = (newProgressValue / 100) * duration;
+    const newTime = (parseFloat(e.target.value) / 100) * duration;
+    if (audioRef.current && isFinite(newTime) && duration > 0) {
       audioRef.current.currentTime = newTime;
-      setCurrentTime(newTime); // Обновляем currentTime немедленно
+      setCurrentTime(newTime); // Обновляем состояние для немедленного отклика UI
     }
   };
-  
+
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
-    if (newVolume > 0) setIsMuted(false); // Если меняем громкость, снимаем mute
+    if (newVolume > 0 && isMuted) setIsMuted(false);
+    if (newVolume === 0 && !isMuted) setIsMuted(true);
   };
 
-  const toggleMute = () => setIsMuted(!isMuted);
-  const toggleRepeat = () => setIsRepeat(!isRepeat);
-  const toggleShuffle = () => setIsShuffle(!isShuffle); // Логика для shuffle должна быть в App.js
-
-  const handleFavoriteClick = () => {
-    if (track && onToggleFavorite) {
-      onToggleFavorite(track.id);
+  const toggleMute = () => {
+    const currentlyMuted = isMuted;
+    setIsMuted(!currentlyMuted);
+    if (currentlyMuted && volume === 0) { 
+      setVolume(0.1); // Если был выключен звук и громкость 0, ставим немного
     }
   };
+  const toggleRepeatMode = () => setIsRepeat(!isRepeat);
+
+  const isCurrentTrackFavorite = track && Array.isArray(favorites) ? favorites.includes(track.id) : false;
 
   const formatTime = (timeInSeconds) => {
-    if (isNaN(timeInSeconds) || timeInSeconds < 0 || !isFinite(timeInSeconds)) return "0:00";
+    if (isNaN(timeInSeconds) || !isFinite(timeInSeconds) || timeInSeconds < 0) return '0:00';
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.floor(timeInSeconds % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  // Данные для отображения, если трек не выбран
-  const currentTrackData = track || {
-    title: "Выберите трек",
-    artist: "Исполнитель",
-    cover_url: "https://placehold.co/64x64/181818/535353?text=Play", // Заглушка для обложки
-    audio_url: null, // Важно, чтобы audio_url был null или пуст, если трека нет
-    album_title: ""
-  };
-
-  const isCurrentFavorite = track && favorites ? favorites.includes(track.id) : false;
+  const trackTitle = track?.title || "Трек не выбран";
+  const trackArtist = track?.artist || "";
+  const defaultCover = '/covers/default_cover.png'; // Убедись, что файл есть в public/covers
+  const coverUrl = track?.cover_url || defaultCover;
+  
+  const VolumeIcon = isMuted || volume === 0 ? VolumeX : (volume < 0.5 ? Volume1 : Volume2);
+  const progressPercentage = duration > 0 && isFinite(duration) && isFinite(currentTime) ? (currentTime / duration) * 100 : 0;
 
   return (
-    // Используем класс player-container из index.css
     <footer className="player-container">
-      <audio ref={audioRef} /> {/* HTML5 аудио элемент */}
+      <audio ref={audioRef} preload="metadata" /> {/* preload="metadata" для быстрой загрузки длительности */}
       
-      {/* Левая часть: информация о треке */}
       <div className="player-track-info">
-        {currentTrackData.audio_url && currentTrackData.audio_url !== '#' && (
-            <img 
-                src={currentTrackData.cover_url} 
-                alt={currentTrackData.title}
-            />
+        {track && (
+          <img 
+            src={coverUrl} 
+            alt={trackTitle}
+            className="player-track-cover"
+            onError={(e) => { e.target.onerror = null; e.target.src = defaultCover; }}
+          />
         )}
         <div className="player-track-details">
-          <span className="player-track-title">{currentTrackData.title}</span>
-          <span className="player-track-artist">{currentTrackData.artist}</span>
+          <span className="player-track-title" title={trackTitle}>{trackTitle}</span>
+          <span className="player-track-artist" title={trackArtist}>{trackArtist}</span>
         </div>
-        {currentTrackData.audio_url && currentTrackData.audio_url !== '#' && onToggleFavorite && (
-            <button 
-                onClick={handleFavoriteClick}
-                className={`player-favorite-button ${isCurrentFavorite ? 'active' : ''}`}
-                aria-label={isCurrentFavorite ? "Удалить из избранного" : "Добавить в избранное"}
-            >
-                <Heart size={18} fill={isCurrentFavorite ? "currentColor" : "none"} />
-            </button>
+        {track && onToggleFavorite && track.id && (
+          <button 
+            onClick={() => onToggleFavorite(track.id)}
+            className={`player-action-button player-favorite-button ${isCurrentTrackFavorite ? 'active' : ''}`}
+            aria-label={isCurrentTrackFavorite ? "Удалить из избранного" : "Добавить в избранное"}
+            title={isCurrentTrackFavorite ? "Удалить из избранного" : "Добавить в избранное"}
+          >
+            <HeartIcon size={18} fill={isCurrentTrackFavorite ? "currentColor" : "none"} />
+          </button>
         )}
       </div>
 
-      {/* Центральная часть: управление воспроизведением */}
       <div className="player-controls">
         <div className="player-buttons">
-          <button onClick={toggleShuffle} className={isShuffle ? 'active' : ''} aria-label="Перемешать">
-            <Shuffle size={18} />
-          </button>
-          <button onClick={onPrevTrack} disabled={!onPrevTrack} aria-label="Предыдущий трек">
-            <SkipBack size={22} />
-          </button>
+          <button onClick={onPrevTrack} disabled={!onPrevTrack} className="player-action-button" aria-label="Предыдущий трек" title="Предыдущий трек"><SkipBack size={20} fill="currentColor" /></button>
           <button 
-            onClick={handleInternalTogglePlayPause} 
+            onClick={handlePlayPauseClick} 
             className="player-play-button"
             aria-label={isPlaying ? "Пауза" : "Воспроизвести"}
-            disabled={!currentTrackData.audio_url || currentTrackData.audio_url === '#'}
+            title={isPlaying ? "Пауза" : "Воспроизвести"}
+            disabled={!track || !track.audio_url || track.audio_url === '#'}
           >
-            {isPlaying ? <Pause size={20} fill="currentColor"/> : <Play size={20} fill="currentColor"/>}
+            {isPlaying ? <Pause size={24} fill="currentColor"/> : <Play size={24} fill="currentColor"/>}
           </button>
-          <button onClick={onNextTrack} disabled={!onNextTrack} aria-label="Следующий трек">
-            <SkipForward size={22} />
-          </button>
-          <button onClick={toggleRepeat} className={isRepeat ? 'active' : ''} aria-label="Повторять">
-            <Repeat size={18} />
-          </button>
+          <button onClick={onNextTrack} disabled={!onNextTrack} className="player-action-button" aria-label="Следующий трек" title="Следующий трек"><SkipForward size={20} fill="currentColor" /></button>
+          <button onClick={toggleRepeatMode} className={`player-action-button ${isRepeat ? 'active' : ''}`} aria-label="Повторять трек" title="Повторять трек"><Repeat size={18} /></button>
         </div>
         <div className="player-progress-bar-container">
           <span className="player-time">{formatTime(currentTime)}</span>
           <input 
             type="range" 
             min="0" 
-            max="100" 
-            value={isNaN(progress) ? 0 : progress} // Защита от NaN
+            max="100" // Всегда от 0 до 100 для процента
+            value={progressPercentage}
             onChange={handleProgressChange}
-            disabled={!currentTrackData.audio_url || currentTrackData.audio_url === '#'}
+            disabled={!track || !track.audio_url || track.audio_url === '#' || !isFinite(duration) || duration === 0}
+            className="player-progress-slider"
+            aria-label="Прогресс трека"
+            style={{'--progress-percent': `${progressPercentage}%`}} // Для стилизации заполнения
           />
           <span className="player-time">{formatTime(duration)}</span>
         </div>
       </div>
 
-      {/* Правая часть: управление громкостью и др. */}
-      <div className="player-volume-controls">
-        {/* <button aria-label="Очередь"><ListMusic size={18} /></button> */}
-        <button onClick={toggleMute} aria-label={isMuted ? "Включить звук" : "Выключить звук"}>
-          {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+      <div className="player-extra-controls">
+        <button onClick={toggleMute} className="player-action-button" aria-label={isMuted ? "Включить звук" : "Выключить звук"} title={isMuted ? "Включить звук" : "Выключить звук"}>
+          <VolumeIcon size={20} />
         </button>
         <input 
           type="range" 
@@ -244,9 +237,10 @@ const Player = ({
           step="0.01" 
           value={isMuted ? 0 : volume}
           onChange={handleVolumeChange}
+          className="player-volume-slider"
           aria-label="Громкость"
+          style={{'--volume-percent': `${(isMuted ? 0 : volume) * 100}%`}} // Для стилизации заполнения
         />
-        {/* <button aria-label="Развернуть"><Maximize2 size={18} /></button> */}
       </div>
     </footer>
   );
